@@ -8,10 +8,15 @@
     --green: #4caf50;
     --orange: #ff9800;
     --control: #e2e8f0;
-    --background: #FAFAFA;
+    --control-brighter: #f3f5f9;
+    --control-focus: rgba(255, 255, 255, 0.2);
+    --background: #fafafa;
     --foreground: #222222;
+    --tag-foreground: #ffffff;
     --foreground-dim: #a0aec0;
     --foreground-light: #cbd5e0;
+    --code-background: #e2e8f0;
+    --code-foreground: #222222;
   }
   .dark {
     --transparent: rgba(0, 0, 0, 0);
@@ -22,29 +27,60 @@
     --green: #8bc34a;
     --orange: #ffb13d;
     --control: #192226;
+    --control-brighter: #2d3e45;
+    --control-focus: rgba(33, 45, 51, 0.4);
     --background: #233035;
     --foreground: #d7e1e4;
+    --tag-foreground: #ffffff;
     --foreground-dim: #638997;
     --foreground-light: #506e7a;
+    --code-background: #506e7a;
+    --code-foreground: #d7e1e4;
   }
 }
 
 @tailwind base;
 
-body {
-  font-size: 14px;
-  line-height: 1.6em;
-  &::-webkit-scrollbar { width: 0 !important }
-  overflow: -moz-scrollbars-none;
-  -ms-overflow-style: none;
+@mixin shadow-border($weight, $color) {
+  box-shadow: 0 $weight 0 0 $color; /* Border bottom */
+  box-shadow: 0 -$weight 0 0 $color; /* Border top */
+  box-shadow: -$weight 0 0 0 $color; /* Border left */
+  box-shadow: $weight 0 0 0 $color; /* Border right */
+  box-shadow: 0 0 0 $weight $color; /* All the borders by using the spread properties */
 }
 
+body {
+  @apply text-base;
+  @screen sm {
+    @apply text-sm;
+  }
+}
+
+textarea:focus,
 input:focus {
   outline: none;
 }
 
+.overflow-y-auto {
+  &::-webkit-scrollbar {
+    width: 0 !important;
+  }
+  overflow: -moz-scrollbars-none;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
 @tailwind components;
 @tailwind utilities;
+
+.no-drag {
+  -webkit-app-region: no-drag;
+}
+
+.draggable {
+  -webkit-user-select: none;
+  -webkit-app-region: drag;
+}
 
 .row {
   a {
@@ -53,24 +89,20 @@ input:focus {
 }
 
 code {
-  &::before {
-    content: "「 ";
-    opacity: 0.5;
-  }
-  &::after {
-    content: " 」";
-    opacity: 0.5;
-  }
+  @apply px-1;
+  background: var(--code-background);
+  color: var(--code-foreground);
+  border-radius: 3px;
+  @include shadow-border(3px, var(--code-background));
 }
 
 .task-content {
   p {
-    display: inline-block;
+    @apply block leading-loose;
   }
 }
 
-@keyframes shadow-pulse
-{
+@keyframes shadow-pulse {
   0% {
     box-shadow: 0 0 0 0px rgba(0, 0, 0, 0.2);
   }
@@ -81,4 +113,125 @@ code {
 
 .pulse {
   animation: shadow-pulse 1s infinite;
+}
+
+.el-sideview {
+  @apply bg-control2nd border-l border-stall-light;
+}
+
+.el-archived-list {
+  .task-content span {
+    @apply text-stall-dim;
+  }
+}
+
+.el-backdrop {
+  background: rgba(0, 0, 0, 0.6);
+}
+
+.markdown-content {
+  :target {
+    @apply border-b;
+  }
+
+  p {
+    @apply my-4 leading-relaxed font-sans;
+  }
+
+  h1 {
+    @apply font-bold text-lg border-stall-light mb-4;
+    &::before {
+      content: '#';
+      @apply opacity-25 mr-3;
+    }
+  }
+
+  h2 {
+    @apply font-bold border-stall-light mb-4;
+    &::before {
+      content: '##';
+      @apply opacity-25 mr-3;
+    }
+  }
+
+  h3 {
+    @apply font-bold border-stall-light mb-4;
+    &::before {
+      content: '###';
+      @apply opacity-25 mr-3;
+    }
+  }
+
+  pre {
+    @apply px-3 py-2 ml-5 bg-control rounded-sm overflow-x-auto;
+
+    code {
+      @apply m-0 p-0;
+    }
+  }
+
+  code {
+    @apply bg-control font-mono text-sm;
+  }
+
+  ol {
+    @apply list-decimal pl-10 py-3;
+
+    li {
+      @apply ml-2;
+
+      a:hover {
+        @apply underline;
+      }
+    }
+  }
+
+  img {
+    @apply flex-1 my-5 border border-stall-light rounded-lg shadow-xl;
+  }
+
+  &.full-page {
+    img {
+      @apply w-11/12 mx-auto;
+      @screen sm {
+        @apply w-5/12 mx-auto;
+      }
+    }
+  }
+}
+
+.el-quickhelp p {
+  margin: 0;
+}
+
+.empty-image {
+  background-image: url(https://pomoday-cdn.now.sh/empty-state.png);
+  background-repeat: no-repeat;
+  background-position: center center;
+  background-blend-mode: multiply;
+  background-color: var(--background);
+  background-size: 80%;
+  opacity: 0.8;
+  @screen sm {
+    background-size: 50%;
+  }
+  @screen md {
+    background-size: 30%;
+  }
+}
+
+.inline-tag {
+  opacity: 0.8;
+  background: var(--purple);
+  color: var(--tag-foreground);
+  border-radius: 3px;
+  @include shadow-border(3px, var(--purple));
+}
+
+.inline-filter-tag {
+  opacity: 0.8;
+  background: var(--orange);
+  color: var(--tag-foreground);
+  border-radius: 3px;
+  @include shadow-border(3px, var(--orange));
 }
